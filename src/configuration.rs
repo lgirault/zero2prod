@@ -29,7 +29,8 @@ impl DatabaseSettings {
     pub fn connection_string(&self) -> String {
         format!(
             "{}/{}",
-            self.connection_string_without_db(), self.database_name
+            self.connection_string_without_db(),
+            self.database_name
         )
     }
 
