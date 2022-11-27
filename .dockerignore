@@ -1,0 +1,10 @@
+.env
+*.http
+.gitignore
+.github/
+.idea/
+target/
+tests/
+Dockerfile
+scripts/
+migrations/
