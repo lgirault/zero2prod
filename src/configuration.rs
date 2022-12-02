@@ -49,12 +49,12 @@ pub fn get_configuration() -> Result<Settings, config::ConfigError> {
             configuration_directory.join(&environment_filename),
         ))
         // Add in settings from environment variables (with a prefix of APP and
-// '__' as separator)
-// E.g. `APP_APPLICATION__PORT=5001 would set `Settings.application.port`
+        // '__' as separator)
+        // E.g. `APP_APPLICATION__PORT=5001 would set `Settings.application.port`
         .add_source(
             config::Environment::with_prefix("APP")
                 .prefix_separator("_")
-                .separator("__")
+                .separator("__"),
         )
         .build()?;
 
@@ -101,7 +101,7 @@ impl DatabaseSettings {
         let ssl_mode = if self.require_ssl {
             PgSslMode::Require
         } else {
-// Try an encrypted connection, fallback to unencrypted if it fails
+            // Try an encrypted connection, fallback to unencrypted if it fails
             PgSslMode::Prefer
         };
         PgConnectOptions::new()
