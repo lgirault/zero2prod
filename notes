@@ -1,0 +1,8 @@
+
+
+to listen outside of localhost, need to edit :
+/etc/postgresql/13/main/conf.d/postgresql.conf
+/etc/postgresql/13/main/conf.d/pg_hba.conf
+
+host address can be obtain with
+ip addr show docker0 | grep -Po 'inet \K[\d.]+
