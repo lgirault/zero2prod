@@ -1,4 +1,4 @@
-use crate::domain::{NewSubscriber, SubscriberName};
+use crate::domain::{NewSubscriber, SubscriberEmail, SubscriberName};
 use actix_web::{web, HttpResponse};
 use chrono::Utc;
 use sqlx::PgPool;
@@ -19,22 +19,24 @@ subscriber_name = % form.name
 )
 )]
 pub async fn subscribe(form: web::Form<FormData>, pool: web::Data<PgPool>) -> HttpResponse {
-    match SubscriberName::parse(form.0.name) {
-        Err(msg) => {
-            return HttpResponse::BadRequest().body(msg);
-        }
-        Ok(name) => {
-            let new_subscriber = NewSubscriber {
-                email: form.0.email,
-                name,
-            };
-
-            match insert_subscriber(&pool, &new_subscriber).await {
-                Ok(_) => return HttpResponse::Ok().finish(),
-                Err(_) => return HttpResponse::InternalServerError().finish(),
-            }
-        }
+    let new_subscriber = match form.0.try_into() {
+        Ok(subscriber) => subscriber,
+        Err(msg) => return HttpResponse::BadRequest().body(msg),
     };
+
+    match insert_subscriber(&pool, &new_subscriber).await {
+        Ok(_) => return HttpResponse::Ok().finish(),
+        Err(_) => return HttpResponse::InternalServerError().finish(),
+    }
+}
+
+impl TryFrom<FormData> for NewSubscriber {
+    type Error = String;
+    fn try_from(value: FormData) -> Result<Self, Self::Error> {
+        let name = SubscriberName::parse(value.name)?;
+        let email = SubscriberEmail::parse(value.email)?;
+        Ok(Self { email, name })
+    }
 }
 
 #[tracing::instrument(
@@ -51,8 +53,8 @@ pub async fn insert_subscriber(
         VALUES ($1, $2, $3, $4)
         "#,
         Uuid::new_v4(),
-        new_subscriber.email,
-        new_subscriber.name.inner_ref(),
+        new_subscriber.email.as_ref(),
+        new_subscriber.name.as_ref(),
         Utc::now()
     )
     .execute(pool)
