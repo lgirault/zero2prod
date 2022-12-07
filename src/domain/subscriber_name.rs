@@ -3,11 +3,11 @@ use unicode_segmentation::UnicodeSegmentation;
 #[derive(Debug)]
 pub struct SubscriberName(String);
 
-static EMPTY_NAME_ERROR: &'static str = "Name must not be empty";
-static NAME_TOO_LONG_ERROR: &'static str =
+static EMPTY_NAME_ERROR: &str = "Name must not be empty";
+static NAME_TOO_LONG_ERROR: &str =
     "Name must have less than 256 characters. Please use a nickname if needed";
 static FORBIDDEN_CHARACTERS: [char; 9] = ['/', '(', ')', '"', '<', '>', '\\', '{', '}'];
-static FORBIDDEN_CHARACTERS_ERROR: &'static str = "Name must not contain a forbidden character ( '/', '(', ')', '\"', '<', '>', '\\', '{', '}') Please use a nickname if needed";
+static FORBIDDEN_CHARACTERS_ERROR: &str = "Name must not contain a forbidden character ( '/', '(', ')', '\"', '<', '>', '\\', '{', '}') Please use a nickname if needed";
 
 impl SubscriberName {
     pub fn parse(s: String) -> Result<SubscriberName, &'static str> {
@@ -25,7 +25,7 @@ impl SubscriberName {
             return Err(FORBIDDEN_CHARACTERS_ERROR);
         }
 
-        Ok(Self(s.to_string()))
+        Ok(Self(s))
     }
 }
 
