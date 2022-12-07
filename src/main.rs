@@ -7,7 +7,7 @@ use zero2prod::telemetry::{get_subscriber, init_subscriber};
 
 //cargo +nightly expand
 #[tokio::main]
-async fn main() -> std::io::Result<()> {
+async fn main() -> Result<(), AppError> {
     let subscriber = get_subscriber("zero2prod".into(), "info".into(), std::io::stdout);
     init_subscriber(subscriber);
 
@@ -29,7 +29,26 @@ async fn main() -> std::io::Result<()> {
         configuration.email_client.base_url,
         sender_email,
         configuration.email_client.authorization_token,
-    );
+    )?;
     let listener = TcpListener::bind(address)?;
-    run(listener, connection_pool, email_client)?.await
+    let _ = run(listener, connection_pool, email_client)?.await;
+    Ok(())
+}
+
+#[derive(Debug)]
+pub enum AppError{
+    EmailClientError(zero2prod::email_client::EmailClientError),
+    IOError(std::io::Error)
+}
+
+impl From<std::io::Error> for AppError {
+    fn from(e: std::io::Error) -> Self {
+        AppError::IOError(e)
+    }
+}
+
+impl From<zero2prod::email_client::EmailClientError> for AppError {
+    fn from(e: zero2prod::email_client::EmailClientError) -> Self {
+        AppError::EmailClientError(e)
+    }
 }
