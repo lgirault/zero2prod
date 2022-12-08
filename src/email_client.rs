@@ -27,7 +27,6 @@ impl From<reqwest::Error> for EmailClientError {
     }
 }
 
-
 impl EmailClient {
     pub fn new(
         base_url: String,
@@ -36,8 +35,7 @@ impl EmailClient {
         timeout: std::time::Duration,
     ) -> Result<Self, EmailClientError> {
         let base_url = reqwest::Url::parse(&base_url)?;
-        let http_client = Client::builder()
-            .timeout(timeout).build()?;
+        let http_client = Client::builder().timeout(timeout).build()?;
         Ok(Self {
             http_client,
             base_url,
@@ -92,13 +90,13 @@ struct SendEmailRequest<'a> {
 mod tests {
     use crate::domain::SubscriberEmail;
     use crate::email_client::EmailClient;
+    use claim::{assert_err, assert_ok};
     use fake::faker::internet::en::SafeEmail;
     use fake::faker::lorem::en::{Paragraph, Sentence};
     use fake::{Fake, Faker};
     use secrecy::Secret;
     use wiremock::matchers::{any, header, header_exists, method, path};
     use wiremock::{Mock, MockServer, Request, ResponseTemplate};
-    use claim::{assert_ok, assert_err};
 
     #[tokio::test]
     async fn send_email_sends_the_expected_request() {
@@ -127,8 +125,7 @@ mod tests {
 
     impl wiremock::Match for SendEmailBodyMatcher {
         fn matches(&self, request: &Request) -> bool {
-            let result: Result<serde_json::Value, _> =
-                serde_json::from_slice(&request.body);
+            let result: Result<serde_json::Value, _> = serde_json::from_slice(&request.body);
             if let Ok(body) = result {
                 body.get("From").is_some()
                     && body.get("To").is_some()
@@ -143,16 +140,15 @@ mod tests {
 
     #[tokio::test]
     async fn send_email_succeeds_if_the_server_returns_200() {
-// Arrange
+        // Arrange
         let mock_server = MockServer::start().await;
-        let email_client = email_client(
-            mock_server.uri());
+        let email_client = email_client(mock_server.uri());
         Mock::given(any())
             .respond_with(ResponseTemplate::new(200))
             .expect(1)
             .mount(&mock_server)
             .await;
-// Act
+        // Act
         let outcome = email_client
             .send_email(email(), &subject(), &content(), &content())
             .await;
@@ -162,17 +158,16 @@ mod tests {
 
     #[tokio::test]
     async fn send_email_fails_if_the_server_returns_500() {
-// Arrange
+        // Arrange
         let mock_server = MockServer::start().await;
-        let email_client = email_client(
-            mock_server.uri());
+        let email_client = email_client(mock_server.uri());
         Mock::given(any())
-// Not a 200 anymore!
+            // Not a 200 anymore!
             .respond_with(ResponseTemplate::new(500))
             .expect(1)
             .mount(&mock_server)
             .await;
-// Act
+        // Act
         let outcome = email_client
             .send_email(email(), &subject(), &content(), &content())
             .await;
@@ -182,19 +177,18 @@ mod tests {
 
     #[tokio::test]
     async fn send_email_times_out_if_the_server_takes_too_long() {
-// Arrange
+        // Arrange
         let mock_server = MockServer::start().await;
-        let email_client = email_client(
-            mock_server.uri());
+        let email_client = email_client(mock_server.uri());
         let response = ResponseTemplate::new(200)
-// 3 minutes!
+            // 3 minutes!
             .set_delay(std::time::Duration::from_secs(180));
         Mock::given(any())
             .respond_with(response)
             .expect(1)
             .mount(&mock_server)
             .await;
-// Act
+        // Act
         let outcome = email_client
             .send_email(email(), &subject(), &content(), &content())
             .await;
@@ -219,7 +213,12 @@ mod tests {
 
     /// Get a test instance of `EmailClient`.
     fn email_client(base_url: String) -> EmailClient {
-        EmailClient::new(base_url, email(), Secret::new(Faker.fake()),
-                         std::time::Duration::from_millis(200)).unwrap()
+        EmailClient::new(
+            base_url,
+            email(),
+            Secret::new(Faker.fake()),
+            std::time::Duration::from_millis(200),
+        )
+        .unwrap()
     }
 }
