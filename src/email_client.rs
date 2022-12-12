@@ -14,6 +14,23 @@ pub enum EmailClientError {
     UrlParseError(url::ParseError),
     ReqwestError(reqwest::Error),
 }
+impl std::fmt::Display for EmailClientError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            EmailClientError::UrlParseError(e) => write!(f, "EmailClientError : Failed to parse {}", e),
+            EmailClientError::ReqwestError(e) => write!(f, "EmailClientError : {}", e),
+        }
+    }
+}
+impl std::error::Error for EmailClientError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        match self {
+// &str does not implement `Error` - we consider it the root cause
+            EmailClientError::UrlParseError(e) => Some(e),
+            EmailClientError::ReqwestError(e) => Some(e),
+        }
+    }
+}
 
 impl From<url::ParseError> for EmailClientError {
     fn from(e: url::ParseError) -> Self {
