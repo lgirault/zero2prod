@@ -1,6 +1,7 @@
 use crate::domain::SubscriberEmail;
 use reqwest::Client;
 use secrecy::{ExposeSecret, Secret};
+use crate::routes::error_chain_fmt;
 
 pub struct EmailClient {
     http_client: Client,
@@ -9,7 +10,11 @@ pub struct EmailClient {
     authorization_token: Secret<String>,
 }
 
-#[derive(Debug)]
+//#[derive(thiserror::Error)]
+//pub enum EmailClientError {
+//    UnexpectedError(#[from] anyhow::Error),
+//
+
 pub enum EmailClientError {
     UrlParseError(url::ParseError),
     ReqwestError(reqwest::Error),
@@ -29,6 +34,11 @@ impl std::error::Error for EmailClientError {
             EmailClientError::UrlParseError(e) => Some(e),
             EmailClientError::ReqwestError(e) => Some(e),
         }
+    }
+}
+impl std::fmt::Debug for EmailClientError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        error_chain_fmt(self, f)
     }
 }
 
