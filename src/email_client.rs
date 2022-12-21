@@ -1,7 +1,7 @@
 use crate::domain::SubscriberEmail;
+use crate::routes::error_chain_fmt;
 use reqwest::Client;
 use secrecy::{ExposeSecret, Secret};
-use crate::routes::error_chain_fmt;
 
 pub struct EmailClient {
     http_client: Client,
@@ -22,7 +22,9 @@ pub enum EmailClientError {
 impl std::fmt::Display for EmailClientError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            EmailClientError::UrlParseError(e) => write!(f, "EmailClientError : Failed to parse {}", e),
+            EmailClientError::UrlParseError(e) => {
+                write!(f, "EmailClientError : Failed to parse {}", e)
+            }
             EmailClientError::ReqwestError(e) => write!(f, "EmailClientError : {}", e),
         }
     }
@@ -30,7 +32,7 @@ impl std::fmt::Display for EmailClientError {
 impl std::error::Error for EmailClientError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
-// &str does not implement `Error` - we consider it the root cause
+            // &str does not implement `Error` - we consider it the root cause
             EmailClientError::UrlParseError(e) => Some(e),
             EmailClientError::ReqwestError(e) => Some(e),
         }
@@ -73,7 +75,7 @@ impl EmailClient {
 
     pub async fn send_email(
         &self,
-        recipient: SubscriberEmail,
+        recipient: &SubscriberEmail,
         subject: &str,
         html_content: &str,
         text_content: &str,
@@ -142,7 +144,7 @@ mod tests {
 
         // Act
         let _ = email_client
-            .send_email(email(), &subject(), &content(), &content())
+            .send_email(&email(), &subject(), &content(), &content())
             .await;
         // Assert
     }
@@ -177,7 +179,7 @@ mod tests {
             .await;
         // Act
         let outcome = email_client
-            .send_email(email(), &subject(), &content(), &content())
+            .send_email(&email(), &subject(), &content(), &content())
             .await;
         // Assert
         assert_ok!(outcome);
@@ -196,7 +198,7 @@ mod tests {
             .await;
         // Act
         let outcome = email_client
-            .send_email(email(), &subject(), &content(), &content())
+            .send_email(&email(), &subject(), &content(), &content())
             .await;
         // Assert
         assert_err!(outcome);
@@ -217,7 +219,7 @@ mod tests {
             .await;
         // Act
         let outcome = email_client
-            .send_email(email(), &subject(), &content(), &content())
+            .send_email(&email(), &subject(), &content(), &content())
             .await;
         // Assert
         assert_err!(outcome);
