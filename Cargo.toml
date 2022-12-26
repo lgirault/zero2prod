@@ -19,10 +19,14 @@ argon2 = { version = "0.4", features = ["std"] }
 base64 = "0.13"
 chrono = { version = "0.4.22", default-features = false, features = ["clock"] }
 config = "0.13"
+hex = "0.4"
+htmlescape = "0.3"
+hmac = { version = "0.12", features = ["std"] }
 rand = { version = "0.8", features=["std_rng"] }
 secrecy = { version = "0.8", features = ["serde"] }
 serde = { version = "1", features = ["derive"]}
 serde-aux = "3"
+sha2 = "0.10"
 thiserror = "1"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"]}
 tracing = { version = "0.1", features = ["log"] }
@@ -32,14 +36,14 @@ tracing-log = "0.1"
 tracing-subscriber = { version = "0.3", features = ["registry", "env-filter"] }
 unicode-segmentation = "1"
 url = "2.3.1"
+urlencoding = "2"
 uuid = { version = "1", features = ["v4"] }
 validator = "0.14"
 
 [dependencies.reqwest]
 version = "0.11"
 default-features = false
-# We need the `json` feature flag to serialize/deserialize JSON payloads
-features = ["json", "rustls-tls"]
+features = ["json", "rustls-tls", "cookies"]
 
 [dependencies.sqlx]
 version = "0.6"
