@@ -7,6 +7,7 @@ use zero2prod::startup::{get_connection_pool, Application};
 use zero2prod::telemetry::{get_subscriber, init_subscriber};
 
 mod test_user;
+
 pub use test_user::*;
 
 pub struct TestApp {
@@ -47,6 +48,15 @@ impl TestApp {
             .expect("Failed to execute request.")
     }
 
+    pub async fn login(&self) {
+        let login_body = serde_json::json!({
+        "username": &self.test_user.username,
+        "password": &self.test_user.password
+        });
+        let response = self.post_login(&login_body).await;
+        assert_is_redirect_to(&response, "/admin/dashboard");
+    }
+
     pub async fn post_subscriptions(&self, body: String) -> reqwest::Response {
         self.api_client
             .post(&format!("{}/subscriptions", &self.address))
@@ -57,11 +67,22 @@ impl TestApp {
             .expect("Failed to execute request.")
     }
 
-    pub async fn post_newsletters(&self, body: serde_json::Value) -> reqwest::Response {
+    pub async fn get_publish_newsletter(&self) -> reqwest::Response {
         self.api_client
-            .post(&format!("{}/newsletters", &self.address))
-            .basic_auth(&self.test_user.username, Some(&self.test_user.password))
-            .json(&body)
+            .get(&format!("{}/admin/newsletters", &self.address))
+            .send()
+            .await
+            .expect("Failed to execute request.")
+    }
+
+    // pub async fn get_publish_newsletter_html(&self) -> String {
+    //     self.get_publish_newsletter().await.text().await.unwrap()
+    // }
+
+    pub async fn post_publish_newsletter(&self, body: serde_json::Value) -> reqwest::Response {
+        self.api_client
+            .post(&format!("{}/admin/newsletter", &self.address))
+            .form(&body)
             .send()
             .await
             .expect("Failed to execute request.")

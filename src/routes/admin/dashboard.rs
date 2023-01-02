@@ -1,7 +1,6 @@
 use crate::authentication::UserId;
 use crate::utils::e500;
 use actix_web::http::header::ContentType;
-use actix_web::http::header::LOCATION;
 use actix_web::{web, HttpResponse};
 use anyhow::Context;
 use sqlx::PgPool;
@@ -27,6 +26,7 @@ pub async fn admin_dashboard(
 <p>Available actions:</p>
 <ol>
 <li><a href="/admin/password">Change password</a></li>
+<li><a href="/admin/newsletter">Send a newsletter</a></li>
 <li>
 <form name="logoutForm" action="/admin/logout" method="post">
 <input type="submit" value="Logout">
