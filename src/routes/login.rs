@@ -1,5 +1,5 @@
-mod get;
-mod post;
+mod login_get;
+mod login_post;
 
-pub use get::login_form;
-pub use post::login;
+pub use login_get::login_form;
+pub use login_post::login;
