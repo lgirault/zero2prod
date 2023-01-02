@@ -4,7 +4,7 @@ use zero2prod::telemetry::{get_subscriber, init_subscriber};
 
 //cargo +nightly expand
 #[tokio::main]
-async fn main() -> Result<(), zero2prod::startup::Error> {
+async fn main() -> Result<(), anyhow::Error> {
     let subscriber = get_subscriber("zero2prod".into(), "info".into(), std::io::stdout);
     init_subscriber(subscriber);
 
